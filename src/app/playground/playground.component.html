@@ -1,0 +1,20 @@
+
+<div>
+  <button (click)="restart()">
+    New game
+  </button>
+
+  <div *ngIf="!gameFinished">
+    <select *ngFor="let item of playerCombination; let i = index; trackBy: trackByIndex" [(ngModel)]="playerCombination[i]">
+      <option *ngFor="let color of COLORS">{{ color }}</option>
+    </select>
+    <button [disabled]="playerCombination.includes(null) || gameFinished" (click)="play()">
+      Play
+    </button>
+  </div>
+
+  <ul>
+    <li *ngFor="let result of results ; let rowcount = index">{{ result.combination }} | {{ result.rightColorAndRightPlace }} | {{ result.rightColor }} | {{ rowcount + 1 }}/{{ MAXIMUM_PLAYS }}</li>
+    <li *ngIf="gameFinished">Game finished</li>
+  </ul>
+</div>
