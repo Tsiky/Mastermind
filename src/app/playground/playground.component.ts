@@ -51,31 +51,37 @@ export class PlaygroundComponent implements OnInit {
     // Init empty result
     let result: Result = {
       combination: '',
-      rightColor: 0,
+      rightColorAndWrongPlace: 0,
       rightColorAndRightPlace: 0
     };
 
-    // Set number of perfect values
-    for (let i = 0; i < this.NUMBER_OF_VALUES; i++) {
-      result.combination = result.combination + this.playerCombination[i];
-      if (this.computerCombination[i] === this.playerCombination[i]) {
-        result.rightColorAndRightPlace++;
-      }
-    }
-
-    // Set number of values with right number but wrong position
+    // Count max pawns of each color
+    let countColorsInComputerCombination: number[] = [];
     for (let i = 0; i < this.COLORS.length; i++) {
-      let countInComputerCombination = this.computerCombination.filter(
+      countColorsInComputerCombination[i] = this.computerCombination.filter(
         value => value === this.COLORS[i]).length;
-      let countInPlayerCombination = this.playerCombination.filter(
-        value => value === this.COLORS[i]).length;
+    }
 
-      if (countInPlayerCombination >= countInComputerCombination) {
-        result.rightColor = result.rightColor + countInComputerCombination;
-      } else {
-        result.rightColor = result.rightColor + countInPlayerCombination;
+    for (let i = 0; i < this.NUMBER_OF_VALUES; i++) {
+      result.combination = result.combination + this.playerCombination[i]; // Add current pawn to the combination to display
+      if (this.computerCombination[i] === this.playerCombination[i]) {
+        // Increments counter for right color & right place if it is the case
+        result.rightColorAndRightPlace++;
+        countColorsInComputerCombination[this.getIndexOfColor(this.playerCombination[i])]--;
+        if (countColorsInComputerCombination[this.getIndexOfColor(this.playerCombination[i])] < 0) {
+          // Right color & right place pawn has priority over right color & wrong place pawn
+          // Therefore remove a right color & wrong place pawn and add a right color & right place pawn
+          countColorsInComputerCombination[this.getIndexOfColor(this.playerCombination[i])]++;
+          result.rightColorAndWrongPlace--;
+        }
+      } else if (this.computerCombination.includes(this.playerCombination[i]) &&
+        countColorsInComputerCombination[this.getIndexOfColor(this.playerCombination[i])] > 0) {
+        // Increments counter for right color and wrong position if the maximum of pawns of this color has not been reached
+        result.rightColorAndWrongPlace++;
+        countColorsInComputerCombination[this.getIndexOfColor(this.playerCombination[i])]--;
       }
     }
+
     this.results.push(result);
     for (let i = 0; i < this.playerCombination.length; i++) {
       this.playerCombination[i] = null;
@@ -91,5 +97,9 @@ export class PlaygroundComponent implements OnInit {
       alert('You lost !');
       this.gameFinished = true;
     }
+  }
+
+  getIndexOfColor(color: string): number {
+    return this.COLORS.indexOf(color);
   }
 }

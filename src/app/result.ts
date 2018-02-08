@@ -1,5 +1,5 @@
 export class Result {
   combination: string;
-  rightColor: number;
+  rightColorAndWrongPlace: number;
   rightColorAndRightPlace: number;
 }
